@@ -1,0 +1,113 @@
+==================================
+                 STORRED PROCEDURES
+==================================
+
+A)
+
+DROP PROCEDURE IF EXISTS updated_fyllo_arthrwn
+DELIMITER $
+CREATE PROCEDURE updated_fyllo_arthrwn (IN no_fyllou INT(2), IN efimerida_onoma VARCHAR(25))
+   BEGIN
+       BEGIN
+              DECLARE Starting_pg INT; 
+              DECLARE Flag INT;
+        
+              DECLARE priority CURSOR FOR
+                        SELECT path_arthrou FROM ypobolli ORDER BY hmerominia_apofasis ASC ;
+              DECLARE CONTINUE HANDLER FOR NOT FOUND SET Flag=1;
+              OPEN priority;
+              SET Flag = 0;
+              FETCH priority INTO Starting_pg;
+             WHILE (Flag=0) DO
+	          SELECT Starting_pg AS 'Starting Page';
+            	          FETCH priority INTO Starting_pg;
+            END WHILE;
+            CLOSE priority;
+       END ;
+       BEGIN
+             SELECT titlos FROM arthro WHERE NOT NULL ;
+             SELECT path_arthrou FROM ypobolli ORDER BY hmerominia_apofasis ASC ;
+             SELECT erg_mail FROM ypobolli ORDER BY hmerominia_apofasis ASC ;
+             SELECT selides_arthrou FROM arthro WHERE fyllo.selides>selides_arthrou ;
+      END ;
+  END $
+DELIMITER ;
+
+
+B)
+
+DROP PROCEDURE IF EXISTS new_payment
+DELIMITER $
+CREATE PROCEDURE new_payment (IN erg_email VARCHAR (30), INOUT misthos NUMERIC (8,2), IN hmerominia_prosliphis DATE, IN proypiresia INT UNSIGNED)
+        BEGIN
+            DECLARE months INT;
+            DECLARE diafora INT;
+            
+            SELECT hmerominia_prosliphis FROM ergazomenos
+            WHERE email IN 
+            (SELECT erg_email FROM dimosiografos
+            WHERE proypiresia >=0 );
+            
+            IF (hmerominia_prosliphis = CURR_DATE) THEN
+		SET misthos = misthos + (0.5*proypiresia);
+           ELSEIF (hmerominia_prosliphis < CURR_DATE) THEN
+		SELECT TIMESTAMPDIFF(month, hmerominia_prosliphis, NOW()) diafora; 
+		SET misthos = misthos + (0.5*diafora);
+           END IF;
+     END $
+DELIMITER ;
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+==================================
+                             TRIGGERS
+==================================
+
+C)
+
+DROP TRIGGER IF EXISTS starter_payment
+DELIMITER $
+CREATE TRIGGER starter_payment 
+AFTER INSERT ON ergazomenos
+FOR EACH ROW
+           BEGIN
+	      DECLARE st_misthos NUMERIC (8,2);
+       	     SELECT misthos INTO st_misthos FROM ergazomenos; 
+       	     INSERT INTO ergazomenos (misthos)
+       	     VALUES (650);
+          END $
+DELIMITER ;
+
+
+D)
+
+DROP TRIGGER IF EXISTS same_person
+DELIMITER $
+CREATE TRIGGER same_person
+AFTER INSERT ON ypobolli
+FOR EACH ROW
+          BEGIN	
+       	 IF ypobolli.erg_email = elegxos.erg_email THEN
+	       INSERT INTO elegxos (apofasi)
+            	       VALUES ('egkrisi');
+                      END IF;
+       END $
+DELIMITER ;
+
+
+E)
+
+DROP TRIGGER IF EXISTS fyllo_capacity_validate
+DELIMITER $
+CREATE TRIGGER fyllo_capacity_validate
+BEFORE INSERT ON fyllo
+FOR EACH ROW
+        BEGIN
+	IF arthro.selides_arthrou < fyllo.selides  THEN
+	          SIGNAL SQLSTATE VALUE '45000'
+	          SET MESSAGE_TEXT = 'Not enough room for the article to be placed.';
+	END IF;
+        END $
+DELIMITER ;

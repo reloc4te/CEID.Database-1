@@ -1,0 +1,171 @@
+==================================
+                             CREATE
+==================================
+
+DROP DATABASE IF EXISTS dbnewspaper;
+CREATE DATABASE dbnewspaper;
+use dbnewspaper;
+
+CREATE TABLE efimerida (
+efimerida_onoma VARCHAR(25) DEFAULT 'unknown' NOT NULL,
+syxnotita_ekdosis ENUM ('hmerisia','ebdomadiaia','miniaia'),
+efimerida_idioktitis VARCHAR(25) NOT NULL,
+PRIMARY KEY (efimerida_onoma)
+);
+
+CREATE TABLE fyllo (
+hmerominia_kukloforias DATE NOT NULL,
+selides INT DEFAULT'30' NOT NULL,
+no_fyllou INT (2) NOT NULL,
+efimerida_onoma VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+email_arxisuntakti VARCHAR (30) NOT NULL,
+seira_arthrwn INT  NOT NULL,
+PRIMARY KEY (no_fyllou, efimerida_onoma),
+FOREIGN KEY (efimerida_onoma) REFERENCES efimerida (efimerida_onoma),
+FOREIGN KEY (email_arxisuntakti) REFERENCES arxisuntaktis (erg_email)
+);
+
+CREATE TABLE ergazomenos (
+email VARCHAR (30) NOT NULL,
+misthos NUMERIC (8,2),
+onoma_ergazomenou VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+epitheto_ergazomenou VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+hmerominia_prosliphis DATE NOT NULL,
+efimerida_onoma VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+PRIMARY KEY (email),
+FOREIGN KEY (efimerida_onoma) REFERENCES efimerida (efimerida_onoma)
+);
+
+CREATE TABLE dioikitikos (
+erg_email VARCHAR (30) NOT NULL REFERENCES ergazomenos(email),
+kathikonta_dioikitikou SET ('Logistics','Secretary'),
+odos VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+arithmos_odou INT UNSIGNED DEFAULT '0' NOT NULL,
+polh VARCHAR (25) DEFAULT 'unknown' NOT NULL,
+PRIMARY KEY (erg_email)
+);
+
+CREATE TABLE tilefwno (
+arithmos_tilefwnou INT NOT NULL,
+erg_email VARCHAR (30) NOT NULL,
+PRIMARY KEY (erg_email, arithmos_tilefwnou),
+FOREIGN KEY (erg_email) REFERENCES dioikitikos (erg_email)
+);
+
+CREATE TABLE dimosiografos (
+erg_email VARCHAR (30) NOT NULL REFERENCES ergazomenos(email),
+proypiresia INT UNSIGNED DEFAULT '0' NOT NULL,
+biografiko TEXT NOT NULL,
+PRIMARY KEY (erg_email)
+);
+
+CREATE TABLE arxisuntaktis (
+erg_email VARCHAR (30) NOT NULL REFERENCES ergazomenos(email),
+kathikonta_arxisuntakti SET ('Article control','Determines the order'),
+tilefwno_arxisuntakti INT NOT NULL,
+PRIMARY KEY (erg_email)
+);
+
+CREATE TABLE arthro (
+path_arthrou VARCHAR (250) NOT NULL,
+titlos CHAR (25),
+periliphi TEXT NOT NULL,
+no_fyllou INT (2) NOT NULL,
+kodikos_katigorias INT NOT NULL,
+selides_arthrou INT NOT NULL,
+PRIMARY KEY (path_arthrou),
+FOREIGN KEY (kodikos_katigorias) REFERENCES katigoria (kodikos_katigorias),
+FOREIGN KEY (no_fyllou) REFERENCES fyllo (no_fyllou)
+);
+
+CREATE TABLE katigoria (
+kodikos_katigorias INT NOT NULL,
+onoma_katigorias SET ('Politics','Economics','Social','Secular','Sports'),
+perigrafi TEXT NOT NULL,
+goniki ENUM ('nai','oxi'),
+PRIMARY KEY (kodikos_katigorias)
+);
+
+CREATE TABLE ypobolli (
+erg_email VARCHAR (30) NOT NULL,
+path_arthrou VARCHAR (250) NOT NULL,
+hmerominia_ypobollis DATE NOT NULL,
+PRIMARY KEY(path_arthrou),
+FOREIGN KEY (erg_email) REFERENCES dimosiografos (erg_email),
+FOREIGN KEY (path_arthrou) REFERENCES arthro (path_arthrou)
+);
+
+CREATE TABLE leksi_kleidi (
+key_word CHAR (9) NOT NULL,
+path_arthrou VARCHAR (250) NOT NULL,
+PRIMARY KEY (key_word, path_arthrou),
+FOREIGN KEY (path_arthrou) REFERENCES arthro (path_arthrou)
+);
+
+CREATE TABLE elegxos (
+apofasi ENUM ('egkrisi','aporiiphi','allages'),
+hmerominia_apofasis DATE NOT NULL,
+path_arthrou VARCHAR (250) NOT NULL,
+erg_email VARCHAR (30) NOT NULL,
+PRIMARY KEY (path_arthrou),
+FOREIGN KEY (path_arthrou) REFERENCES arthro (path_arthrou),
+FOREIGN KEY (erg_email) REFERENCES arxisuntaktis (erg_email)
+);
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+==================================
+                             INSERT
+==================================
+
+use dbnewspaper;
+
+INSERT INTO efimerida VALUES
+('KATHIMERINI','hmerisia','VLAXOS'),
+('ETHNOS','ebdomadiaia','SAVIDIS');
+
+INSERT INTO fyllo VALUES
+('2020-08-25','',2,'KATHIMERINI','kath@gmail.com',2),
+('2020-09-04',15,2,'ETHNOS','eth@gmail.com',1);
+
+INSERT INTO ergazomenos VALUES
+('erg@gmail.com',2000.00,'ALEX','PAPADOPOULOS','2020-03-12','KATHIMERINI'),
+('erg@hotmail.com',1200,'GIANNIS','MAKRIS','2019-04-15','ETHNOS');
+
+INSERT INTO dioikitikos VALUES
+('erg@gmail.com','Logistics','Parnassou',19,'Athina'),
+('erg@hotmail.com','Secretary','Stadiou',120,'Athina');
+
+INSERT INTO tilefwno VALUES
+(6938459200,'erg@gmail.com'),
+(6912563477,'erg@hotmail.com');
+
+INSERT INTO dimosiografos VALUES
+('erg@gmail.com',3,'DFG HDFGHDFGH DFGH'),
+('erg@hotmail.com',2,'SFDBSDFV SFDVFDVD FVDFVDFS');
+
+INSERT INTO arxisuntaktis VALUES
+('kath@gmail.com','Article control',6978283401),
+('eth@gmail.com','Article control',6945678901);
+
+INSERT INTO arthro VALUES
+('C:\Users\Articles\Submitted\Article34a.doc','Dikaiosini shmera','qweer giu iuc iuiuiuif',2,1334,10),
+('C:\Users\Articles\Submitted\Article44b.doc','O agwnas','wretwer twertwert rtyytui',2,123,4);
+
+INSERT INTO katigoria VALUES
+(1334,'Politics','rewrewrw','nai'),
+(123,'Sports','bvcb vcb','nai');
+
+INSERT INTO ypobolli VALUES
+('erg@gmail.com','C:\Users\Articles\Submitted\Article34a.doc','2020-05-05'),
+('erg@hotmail.com','C:\Users\Articles\Submitted\Article44b.doc','2020-10-13');
+
+INSERT INTO leksi_kleidi VALUES
+('dikaiosini','C:\Users\Articles\Submitted\Article34a.doc'),
+('agwnas','C:\Users\Articles\Submitted\Article44b.doc');
+
+INSERT INTO elegxos VALUES
+('egkrisi','2020-05-10','C:\Users\Articles\Submitted\Article34a.doc','kath@gmail.com'),
+('allages','2020-10-17','C:\Users\Articles\Submitted\Article44b.doc','eth@gmail.com');
