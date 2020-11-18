@@ -6,7 +6,7 @@ Unfortunately the Schema is written in greeklish.
 This project was a team project, but done solo.
 
 
-ER diagramm and Schema Design
-SQL Create and Insert Statments
-SQL Selects
-GUI implementation
+- ER diagramm and Schema Design
+- SQL Create and Insert Statements
+- SQL 
+
