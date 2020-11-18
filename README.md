@@ -8,5 +8,5 @@ This project was a team project, but done solo.
 
 - ER diagramm and Schema Design
 - SQL Create and Insert Statements
-- SQL Procedure and 
+- SQL Procedure and Triggers
 
